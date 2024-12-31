@@ -1,6 +1,7 @@
 package ml.melun.mangaview;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -246,23 +247,33 @@ public class Utils {
                 .show();
     }
 
-    public static void showErrorPopup(Context context, String message, Exception e, boolean force_close){
+    public static AlertDialog showErrorPopup(Context context, String message, Exception e, boolean force_close) {
+        if (e != null) {
+            e.printStackTrace();
+        }
         AlertDialog.Builder builder;
         String title = "오류";
         if (new Preference(context).getDarkTheme()) builder = new AlertDialog.Builder(context, R.style.darkDialog);
         else builder = new AlertDialog.Builder(context);
         builder.setTitle(title)
                 .setMessage(message)
-                .setPositiveButton("확인", (dialog, which) -> {
-                    if(force_close) ((Activity)context).finish();
+                .setPositiveButton("확인", (dialogInterface, which) -> {
+                    if (force_close) ((Activity) context).finish();
+                    dialogInterface.dismiss();
                 })
                 .setOnCancelListener(dialogInterface -> {
-                    if(force_close) ((Activity)context).finish();
+                    if (force_close) ((Activity) context).finish();
+                    dialogInterface.dismiss();
                 });
-        if(e != null) {
+        if (e != null) {
             builder.setNeutralButton("자세히", (dialog, which) -> showStackTrace(context, e));
         }
-        builder.show();
+
+
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+        return dialog;
     }
 
     public static boolean checkConnection(Context context){
@@ -277,6 +288,12 @@ public class Utils {
 
 
     public static void showCaptchaPopup(String url, Context context, int code, Exception e, boolean force_close, Fragment fragment, Preference p){
+        // add logcat stacktrace
+        if(e != null)
+        {
+            e.printStackTrace();
+        }
+
         if(context != null) {
             if (!checkConnection(context)) {
                 //no internet
@@ -440,6 +457,10 @@ public class Utils {
     }
 
     private static void showStackTrace(Context context, Exception e){
+        if (e != null) {
+            e.printStackTrace();
+        }
+
         StringBuilder sbuilder = new StringBuilder();
         if(e.getMessage() != null)
             sbuilder.append(e.getMessage()).append("\n");
@@ -579,7 +600,7 @@ public class Utils {
             if(responseCode == 302)
                 return true;
         }catch (Exception e){
-
+            e.printStackTrace();
         }
         return false;
     }
@@ -859,5 +880,6 @@ public class Utils {
     }
 
     public static final int CODE_SCOPED_STORAGE = 21;
+
 
 }

@@ -9,10 +9,12 @@
         android:layout_width="match_parent"
         android:layout_height="70dp"
         android:id="@+id/toki_captcha_image"/>
+
     <EditText
+        android:id="@+id/toki_captcha_answer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/toki_captcha_answer"/>
+        android:inputType="number" />
 
 
 </androidx.appcompat.widget.LinearLayoutCompat>

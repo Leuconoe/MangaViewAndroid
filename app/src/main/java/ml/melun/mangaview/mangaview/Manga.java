@@ -94,7 +94,7 @@ public class Manga {
         int tries = 0;
 
         while (imgs.size() == 0 && tries < 2) {
-            Response r = client.mget(  baseModeStr(baseMode) + '/' + id, false, cookies);
+            Response r = client.mget(baseModeStr(baseMode) + '/' + id, false, cookies);
             try {
                 if (r.code() == 302 && r.header("location").contains("captcha.php")) {
                     return LOAD_CAPTCHA;
@@ -102,7 +102,7 @@ public class Manga {
                 String body = r.body().string();
                 r.close();
                 if (body.contains("Connect Error: Connection timed out")) {
-                    //adblock : try again
+                    // adblock: try again
                     r.close();
                     tries = 0;
                     continue;
@@ -110,29 +110,37 @@ public class Manga {
 
                 Document d = Jsoup.parse(body);
 
-                System.out.println(body);
-
-                //name
-                name = d.selectFirst("div.toon-title").ownText();
-
-                //temp title
-                Element navbar = d.selectFirst("div.toon-nav");
-                int tid = Integer.parseInt(navbar.select("a")
-                        .last()
-                        .attr("href")
-                        .split(baseModeStr(baseMode) + '/')[1]
-                        .split("\\?")[0]);
-
-                if (title == null) title = new Title(name, "", "", null, "", tid, baseMode);
-
-                //eps
-                for (Element e : navbar.selectFirst("select").select("option")) {
-                    String idstr = e.attr("value");
-                    if (idstr.length() > 0)
-                        eps.add(new Manga(Integer.parseInt(idstr), e.ownText(), "", baseMode));
+                // name
+                Element nameElement = d.selectFirst("div.toon-title");
+                if (nameElement != null) {
+                    name = nameElement.ownText();
+                } else {
+                    // Handle the case where nameElement is null
                 }
 
-                //imgs
+                // temp title
+                Element navbar = d.selectFirst("div.toon-nav");
+                if (navbar != null) {
+                    int tid = Integer.parseInt(navbar.select("a")
+                            .last()
+                            .attr("href")
+                            .split(baseModeStr(baseMode) + '/')[1]
+                            .split("\\?")[0]);
+
+                    if (title == null) title = new Title(name, "", "", null, "", tid, baseMode);
+
+                    // eps
+                    for (Element e : navbar.selectFirst("select").select("option")) {
+                        String idstr = e.attr("value");
+                        if (idstr.length() > 0)
+                            eps.add(new Manga(Integer.parseInt(idstr), e.ownText(), "", baseMode));
+                    }
+                } else {
+                    // Handle the case where navbar is null
+                }
+
+                // imgs
+                //change safety check
                 String script = d.select("div.view-padding").get(1).selectFirst("script").data();
                 StringBuilder encodedData = new StringBuilder();
                 encodedData.append('%');
@@ -174,29 +182,29 @@ public class Manga {
                     }
                 }
 
-                //comments
+                // comments
                 Element commentdiv = d.selectFirst("div#viewcomment");
-
-
-                try {
-                    for (Element e : commentdiv.selectFirst("section#bo_vc").select("div.media")) {
-                        try {
-                            comments.add(parseComment(e));
-                        } catch (Exception e3) {
-                            e3.printStackTrace();
+                if (commentdiv != null) {
+                    try {
+                        for (Element e : commentdiv.selectFirst("section#bo_vc").select("div.media")) {
+                            try {
+                                comments.add(parseComment(e));
+                            } catch (Exception e3) {
+                                e3.printStackTrace();
+                            }
                         }
-
-                    }
-                    for (Element e : commentdiv.selectFirst("section#bo_vcb").select("div.media")) {
-                        try {
-                            bcomments.add(parseComment(e));
-                        } catch (Exception e3) {
-                            e3.printStackTrace();
+                        for (Element e : commentdiv.selectFirst("section#bo_vcb").select("div.media")) {
+                            try {
+                                bcomments.add(parseComment(e));
+                            } catch (Exception e3) {
+                                e3.printStackTrace();
+                            }
                         }
-
+                    } catch (Exception e1) {
+                        e1.printStackTrace();
                     }
-                } catch (Exception e1) {
-                    e1.printStackTrace();
+                } else {
+                    // Handle the case where commentdiv is null
                 }
 
             } catch (Exception e2) {
@@ -209,7 +217,6 @@ public class Manga {
         }
         return LOAD_OK;
     }
-
     private Comment parseComment(Element e) {
         String user;
         String icon;

@@ -1,5 +1,5 @@
-// https://gist.github.com/InsanityOnABun/95c0757f2f527cc50e39
 package ml.melun.mangaview.ui;
+
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -11,7 +11,8 @@ import java.lang.reflect.Field;
 
 public class MarqueeToolbar extends Toolbar {
 
-    TextView title;
+    private TextView title;
+    private boolean reflected = false;
 
     public MarqueeToolbar(Context context) {
         super(context);
@@ -43,29 +44,25 @@ public class MarqueeToolbar extends Toolbar {
         selectTitle();
     }
 
-    boolean reflected = false;
     private boolean reflectTitle() {
         try {
             Field field = Toolbar.class.getDeclaredField("mTitleTextView");
             field.setAccessible(true);
             title = (TextView) field.get(this);
-            title.setEllipsize(TextUtils.TruncateAt.MARQUEE);
-            title.setMarqueeRepeatLimit(-1);
+            if (title != null) {
+                title.setEllipsize(TextUtils.TruncateAt.MARQUEE);
+                title.setMarqueeRepeatLimit(-1);
+            }
             return true;
-        } catch (NoSuchFieldException e) {
-            e.printStackTrace();
-            return false;
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-            return false;
-        } catch (NullPointerException e) {
+        } catch (NoSuchFieldException | IllegalAccessException e) {
             e.printStackTrace();
             return false;
         }
     }
 
-    public void selectTitle() {
-        if (title != null)
+    private void selectTitle() {
+        if (title != null) {
             title.setSelected(true);
+        }
     }
 }
