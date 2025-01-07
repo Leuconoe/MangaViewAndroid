@@ -1,9 +1,11 @@
 package ml.melun.mangaview.activity;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
@@ -26,6 +28,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
 
+import ml.melun.mangaview.Preference;
 import ml.melun.mangaview.R;
 import ml.melun.mangaview.Utils;
 import ml.melun.mangaview.mangaview.Login;
@@ -40,6 +43,8 @@ public class CaptchaActivity extends AppCompatActivity {
     public static final int RESULT_CAPTCHA = 15;
     public static final int REQUEST_CAPTCHA = 32;
     String domain;
+
+    private AlertDialog.Builder captchaDialogBuilder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -134,6 +139,35 @@ public class CaptchaActivity extends AppCompatActivity {
 
     }
 
+    public AlertDialog showErrorPopup(Context context, String message, Exception e, boolean force_close) {
+        if (e != null) {
+            e.printStackTrace();
+        }
+        String title = "오류";
+        if (new Preference(context).getDarkTheme()) captchaDialogBuilder = new AlertDialog.Builder(context, R.style.darkDialog);
+        else captchaDialogBuilder = new AlertDialog.Builder(context);
+        captchaDialogBuilder.setTitle(title)
+                .setMessage(message)
+                .setPositiveButton("확인", (dialogInterface, which) -> {
+                    if (force_close) ((Activity) context).finish();
+                    dialogInterface.dismiss();
+                })
+                .setOnCancelListener(dialogInterface -> {
+                    if (force_close) ((Activity) context).finish();
+                    dialogInterface.dismiss();
+                });
+        if (e != null) {
+            captchaDialogBuilder.setNeutralButton("자세히", (dialog, which) -> e.printStackTrace());
+        }
+
+
+
+        AlertDialog dialog = captchaDialogBuilder.create();
+        dialog.show();
+        return dialog;
+    }
+
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -142,6 +176,9 @@ public class CaptchaActivity extends AppCompatActivity {
         webView.clearHistory();
         webView.clearCache(true);
         webView.destroy();
+        if (captchaDialogBuilder != null) {
+            captchaDialogBuilder.create().dismiss();
+        }
     }
 
     @Override

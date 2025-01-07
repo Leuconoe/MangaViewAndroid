@@ -179,6 +179,7 @@ public class RecyclerFragment extends Fragment {
             titleAdapter.setResume(false);
             titleAdapter.setForceThumbnail(true);
             titleAdapter.clearData();
+            Toast.makeText(getContext(), "저장된 만화를 불러오는 중입니다.\n양이 많을 경우 불러오는데 시간이 걸립니다.", Toast.LENGTH_SHORT).show();
             new OfflineReader().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
     }

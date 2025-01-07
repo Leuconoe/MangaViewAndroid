@@ -3,15 +3,15 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 33
     def date = new Date()
-    def formattedDate = date.format('YYMMdd')
-    def versionCodeValue = formattedDate.toInteger() + 2112000000
+    def formattedDate = date.format('YYMMDDHHmmss')
+    def versionCodeValue = formattedDate.toBigInteger()
 
     defaultConfig {
         applicationId "ml.melun.mangaview2"
         minSdkVersion 21
         targetSdkVersion 33
         versionCode versionCodeValue
-        versionName "5.0-" + versionCodeValue
+        versionName "v." + versionCodeValue
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
         multiDexEnabled true

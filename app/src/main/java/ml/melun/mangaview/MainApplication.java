@@ -21,6 +21,8 @@ import ml.melun.mangaview.mangaview.CustomHttpClient;
 public class MainApplication extends MultiDexApplication {
     public static CustomHttpClient httpClient;
     public static Preference p;
+
+    /*
     @Override
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
@@ -29,7 +31,7 @@ public class MainApplication extends MultiDexApplication {
                 .withBuildConfigClass(BuildConfig.class)
                 .withReportFormat(StringFormat.JSON)
                 .withPluginConfigurations(
-                        new MailSenderConfigurationBuilder().withMailTo("mangaview@protonmail.com").build(),
+                        //new MailSenderConfigurationBuilder().withMailTo("mangaview@protonmail.com").build(),
                         new DialogConfigurationBuilder()
                                 .withTitle("MangaView")
                                 .withText(getResources().getText(R.string.acra_dialog_text).toString())
@@ -46,4 +48,23 @@ public class MainApplication extends MultiDexApplication {
         httpClient = new CustomHttpClient();
         super.onCreate();
     }
+
+     */
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
+        System.out.println("main app start");
+    }
+
+    @Override
+    public void onCreate() {
+        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
+        p = new Preference(this);
+        httpClient = new CustomHttpClient();
+        super.onCreate();
+
+        // Set custom crash handler
+        Thread.setDefaultUncaughtExceptionHandler(new CrashHandler(this));
+    }
+
 }
